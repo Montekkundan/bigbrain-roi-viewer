@@ -53,13 +53,63 @@ The image estimate excludes VTK queues, decoder pools, canvas/compositor copies 
 
 **Release data** removes the browser view, detaches the scalar input and requests graphics-resource release. Active voxel/image readings become zero; **Reload data** restores the selection. VTK can retain a detached scalar buffer until a later load/render, and allocators or browser garbage collection can delay reclamation. Zero active data does not mean zero total memory. On the Mac, server and browser use the same physical computer.
 
-## Reuse and GB10
+## Architecture
 
-- `source.py`: bounded concurrent requests for raw/JPEG Neuroglancer chunks.
-- `data.py`: block-wise crop/pyramid preparation, physical transforms, integrity checks and scalar input budgets.
-- `viewer.py`: Trame UI and VTK GPU volume mapper, interaction and cuts.
-- `memory.py` and `static/browser-memory.js`: server RAM sampling and browser image/heap readings.
-- `__main__.py`: `prepare`, `check` and `serve` commands.
+```text
+bigbrain-roi-viewer/
+├── configs/
+│   ├── mac-demo.json                  # Original nominal 20 µm region
+│   ├── mac-1um-demo.json              # Native 1 µm region and derived levels
+│   └── gb10-larger-roi.example.json   # Untested larger region
+├── src/openmind/
+│   ├── __main__.py                    # CLI: prepare, check, serve
+│   ├── source.py                      # Bounded concurrent source-chunk downloads
+│   ├── data.py                        # Zarr preparation, hashes and level loading
+│   ├── viewer.py                      # Trame controls, VTK rendering and cuts
+│   ├── memory.py                      # Current and peak server process RAM
+│   ├── browser_memory.py              # Registers the browser widget and its events
+│   └── static/browser-memory.js       # Browser image/heap readings and history
+├── tests/                            # Data, cuts, recovery and memory regressions
+├── pyproject.toml                    # Package, dependencies and browser asset
+├── setup.sh                          # Creates .venv and installs the package
+├── Start Demo.command                # Prepares missing data and starts the viewer
+├── Stop Demo.command                 # Stops the recorded demo process
+├── README.md
+└── LICENSE
+```
+
+Preparation generates `data/<region>/catalog.json` and `data/<region>/volume.zarr/`. The catalog records source provenance, shapes, spacing, origins and voxel hashes; the Zarr store holds the native and averaged levels. This generated data is ignored by Git.
+
+```mermaid
+flowchart LR
+    subgraph Preparation["Preparation"]
+        Config["configs/*.json"] --> Prepare["data.py: prepare"]
+        Source["Public Neuroglancer source"] --> Fetch["source.py: bounded chunks"]
+        Fetch --> Prepare
+        Prepare --> Disk["Local catalog.json + volume.zarr"]
+    end
+    subgraph Server["Rendering server: Mac now, GB10 later"]
+        Disk --> Load["data.py: load_level"]
+        Load --> Volume["One selected ROI level in RAM"]
+        Volume --> Renderer["viewer.py: VTK GPU volume renderer"]
+        Renderer --> Stream["Trame / VtkRemoteView"]
+        Stream -->|"Camera and cut updates"| Renderer
+        RAM["memory.py: current / peak RSS"] --> Stream
+    end
+    subgraph Browser["Client browser"]
+        Stream -->|"Rendered images + UI state"| Display["Image display and controls"]
+        Display -->|"Mouse, sliders, selection"| Stream
+        Display --> Meter["browser-memory.js: image / heap readings"]
+    end
+```
+
+`prepare` streams intersecting source chunks into local Zarr and builds coarse levels in blocks. `serve` reads the catalogs, loads one selected level through `load_level`, shares its NumPy scalar buffer with VTK, and exposes the controls through Trame. `check` reads stored voxel data to verify the catalog hashes.
+
+Orbit, zoom and cut changes update the existing server-side renderer and send new images to the browser. They keep the selected volume loaded. Dataset or resolution changes load another complete bounded level. The browser does not fetch or render the 3D voxel array. The memory widget samples browser readings locally and requests server RAM updates once per second.
+
+For extension, keep source-format access in `source.py`, pyramid/catalog handling in `data.py`, and renderer/cache integration in `viewer.py`. A future brick cache must replace the complete-level loading/rendering path shown above; changing configuration limits alone will not add streaming.
+
+## Reuse and GB10
 
 For Linux/GB10, clone the repository and create a fresh environment there. Compatible ARM64 wheels, the NVIDIA driver and VTK OpenGL/EGL GPU rendering must be validated on the actual machine. Bind the server to loopback and forward the port:
 
