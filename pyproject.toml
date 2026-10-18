@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "openmind-roi-demo"
+version = "0.1.0"
+description = "A reproducible BigBrain ROI demonstration using Trame and VTK"
+readme = "README.md"
+license = {file = "LICENSE"}
+requires-python = ">=3.12"
+dependencies = [
+  "numpy==2.5.4",
+  "zarr==3.4.1",
+  "vtk==9.6.0",
+  "trame==4.0.0",
+  "trame-vtk==2.11.17",
+  "trame-vuetify==3.3.0",
+]
+
+[project.scripts]
+openmind = "openmind.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+openmind = ["static/*.js"]

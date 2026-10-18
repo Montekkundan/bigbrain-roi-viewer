@@ -1,0 +1,19 @@
+{
+  "name": "BigBrain larger tissue region",
+  "url": "https://neuroglancer.humanbrainproject.eu/precomputed/BigBrainRelease.2015/8bit",
+  "scale": "20um",
+  "nominal_resolution_um": 20,
+  "start_xyz": [3456, 3904, 2944],
+  "shape_xyz": [640, 640, 640],
+  "factors": [1, 2, 5],
+  "workers": 8,
+  "max_roi_mib": 512,
+  "source": {
+    "dataset": "BigBrain Release 2015, 8-bit histology",
+    "coordinate_system": "Source voxel coordinates; no independently verified atlas affine",
+    "license": "CC BY-NC-SA 4.0",
+    "license_url": "https://ftp.bigbrainproject.org/bigbrain-ftp/License.txt",
+    "reference": "Amunts et al. (2013), Science 340, 1472-1475, DOI:10.1126/science.1235381",
+    "status": "Example only; not downloaded or benchmarked on GB10"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "name": "1 µm cellular ROI (VOI1)",
+  "url": "https://1um.brainatlas.eu/cyto_reconstructions/ebrains_release/BB_1um/VOI_1/precomputed",
+  "scale": "1,1,1",
+  "nominal_resolution_um": 1,
+  "start_xyz": [2816, 2816, 2816],
+  "shape_xyz": [320, 320, 320],
+  "factors": [1, 5, 20],
+  "workers": 6,
+  "max_roi_mib": 64,
+  "background_value": 255,
+  "comparison_note": "The 1, 5 and 20 µm levels here show exactly the same 0.32 mm tissue crop. The 5 and 20 µm levels are block means derived from native 1 µm data. The separate original 20 µm dataset shows a different region; these two crops are not atlas aligned.",
+  "source": {
+    "title": "Huysegoms et al. 1 µm reconstructed VOI1",
+    "dataset": "Cellular level 3D reconstructed volumes at 1 µm resolution within the BigBrain occipital cortex (v1.0), VOI1",
+    "doi": "10.25493/K8Q7-CG9",
+    "reference": "Huysegoms, Bludau, Oliveira, Upschulte, Dickscheid and Amunts (2022), EBRAINS, DOI:10.25493/K8Q7-CG9",
+    "dataset_record": "https://juser.fz-juelich.de/record/911550",
+    "official_configuration": "https://raw.githubusercontent.com/FZJ-INM1-BDA/siibra-configurations/v1/features/images/vois/cellbody/d71d369a-c401-4d7e-b97a-3fb78eed06c5_huysegoms_voi_1.json",
+    "coordinate_system": "Local VOI source-grid coordinates. The published atlas registration affine is not applied by this viewer.",
+    "license": "CC BY-NC-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+    "license_evidence": "https://raw.githubusercontent.com/ome/ome2024-ngff-challenge/main/samples/fzj.csv",
+    "selection": "Central 320³ demonstration crop; not a scientific sampling procedure"
+  }
+}
